@@ -91,9 +91,12 @@ public class LogInActivity extends AppCompatActivity implements
                             updateUI(user);
                             String ID = FirebaseAuth.getInstance().getUid();
                             String token = FirebaseInstanceId.getInstance().getToken();
-                            User nUser = new User(ID,token);
+                            User nUser = new User(ID,mEmailField.getText().toString(),token);
                             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token");
                             ref.child(ID).setValue(nUser.getToken());
+                            ref = FirebaseDatabase.getInstance().getReference("email");
+                            String nMail = TransformMail.transformMail(mEmailField.getText().toString());
+                            ref.child(nMail).setValue(nUser.getID());
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
