@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         id=UUID.randomUUID().toString();
         return id;
     }
-//
+
     public void mostrarToken(View view) {
         String token = FirebaseInstanceId.getInstance().getToken();
         Toast t = Toast.makeText(this,token,Toast.LENGTH_LONG);
