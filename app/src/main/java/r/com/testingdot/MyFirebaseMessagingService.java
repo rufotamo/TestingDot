@@ -30,6 +30,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // ...
         String sMensaje = null;
+        String ID = null;
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
@@ -40,7 +41,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Map <String,String> msg = remoteMessage.getData();
             for (Map.Entry<String, String> entry : msg.entrySet()) {
                 //Toast t = Toast.makeText(this,entry.getValue(),Toast.LENGTH_LONG);
-                sMensaje=entry.getValue();
+                if(entry.getKey().equalsIgnoreCase("message"))
+                    sMensaje=entry.getValue();
+                else
+                    ID=entry.getValue();
             }
         }
         //if (/* Check if data needs to be processed by long running job */ true) {
@@ -67,7 +71,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             }
             String sound = remoteMessage.getNotification().getSound();
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.putExtra("ElMensaje", sMensaje);
+            intent.putExtra("theMessage", sMensaje);
+            intent.putExtra("UID",ID);
             startActivity(intent);
         }
 

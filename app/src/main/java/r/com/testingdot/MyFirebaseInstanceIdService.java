@@ -33,7 +33,7 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
     public void writeDB(String token) {
         String tk = token;
         String ID = FirebaseAuth.getInstance().getUid();
-        User user = new User(ID, tk);
+        User user = new User(ID,null, tk);
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token");
         ref.child(ID).setValue(user.getToken());
     }

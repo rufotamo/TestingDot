@@ -6,10 +6,20 @@ import com.google.firebase.database.IgnoreExtraProperties;
 public class User {
     public String email;
     public String token;
+    public String ID;
     public User(){}
-    public User(String email, String token){
+    public User(String ID,String email, String token){
+        this.ID=ID;
         this.email=email;
         this.token=token;
+    }
+
+    public String getID() {
+        return ID;
+    }
+
+    public void setId(String id) {
+        ID = id;
     }
 
     public String getEmail() {

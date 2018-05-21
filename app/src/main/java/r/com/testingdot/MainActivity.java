@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FCM_MESSAGE_URL = "https://fcm.googleapis.com/fcm/send";
     OkHttpClient mClient = new OkHttpClient();
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-    static final String tokenTlfno = "cxkQMsAfzUU:APA91bEl3nq67lUNbGZ-4ls6nE_crDUSEBX&bKX-a5b2qxgJ2enyPH9BmixKuTiOMsWUNOKCZcet-QSU7vn1R4QnhwVLFRU5nLYQKOQMlYCy2zOVXkFFlmHKPUK1KJz-yj-Ll7gE0z0";
+    String token = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,13 +56,15 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         processExtraData();
+        dbReadOnFeedback();
     }
     private void processExtraData() {
         Bundle b = getIntent().getExtras();
         if (b != null) {
                 btnDenegar.setVisibility(View.VISIBLE);
                 btnAceptar.setVisibility(View.VISIBLE);
-                String sMensaje = b.getString("ElMensaje");
+                String sMensaje = b.getString("theMessage");
+                sentID = b.getString("UID");
                 tv.setText(sMensaje);
             }
     }
@@ -72,13 +75,22 @@ public class MainActivity extends AppCompatActivity {
         btnDenegar.setVisibility(View.INVISIBLE);
         btnAceptar.setVisibility(View.INVISIBLE);
     }
-    public void sendMessage(View view){
+    public void recieve (View v){
+        sendMessage(v,"Package can be recieved");
+    }
+    public void notRecieve(View v){
+        sendMessage(v,"Package cannot be recieved");
+        tv.setText("EL PAQUETE LLEGARA EL SIGUIENTE DÍA LABORABLE");
+    }
+    public void sendMessage(View view, String message){
         String id = generateMessageId();
-        HashMap<String,String> dataValues = new HashMap<String,String>();
-        dataValues.put("elMensaje", "Tu paquete esta cerca");
+        //HashMap<String,String> dataValues = new HashMap<String,String>();
+        //dataValues.put("elMensaje", "Tu paquete esta cerca");
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(tokenTlfno);
-        sendFinal(jsonArray,"A TITLE", "THIS IS A BODY", null,"this is a message");
+        //variable token para devolver mensaje en caso de ser el gerente leer de BBDD el UID sobre el mail y el
+        //token sobre el UID
+        jsonArray.put(token);
+        sendFinal(jsonArray,"FEEDBACK NOTIFICATION", "FEEDBACK", null,message);
     }
 
     private String generateMessageId() {
@@ -106,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject data = new JSONObject();
                     data.put("message", message);
+                    data.put("UID", FirebaseAuth.getInstance().getUid());
                     root.put("notification", notification);
                     root.put("data", data);
                     root.put("registration_ids", recipients);
@@ -146,13 +159,13 @@ public class MainActivity extends AppCompatActivity {
         Response response = mClient.newCall(request).execute();
         return response.body().string();
     }
-    public void readDB(View v) {
+    public void dbReadOnFeedback() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Token");
         ref.child(sentID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String token = dataSnapshot.getValue(String.class);
-                Toast.makeText(getApplicationContext(),token,Toast.LENGTH_LONG).show();
+                String sentTK = dataSnapshot.getValue(String.class);
+                token=sentTK;
             }
 
             @Override
